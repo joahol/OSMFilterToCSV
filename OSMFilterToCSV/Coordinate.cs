@@ -24,13 +24,16 @@ namespace OSMFilterToCSV
 
         public Coordinate(Node roadstub)
         {
+            double latitude, longitude;
+            latitude = (Math.PI / 180) * roadstub.Latitude.Value;
+            longitude = (Math.PI / 180) * roadstub.Longitude.Value;
             Roadstub = roadstub;
-            X = (long)(Radius * Math.Cos(roadstub.Latitude.Value) * Math.Cos(roadstub.Longitude.Value));
-            Y = (long)(Radius * Math.Cos(roadstub.Latitude.Value) * Math.Sin(roadstub.Longitude.Value));
-            Z = (long)(Radius * Math.Sin(roadstub.Latitude.Value));
+            X = (long)(Radius * Math.Cos(latitude) * Math.Cos(longitude));
+            Y = (long)(Radius * Math.Cos(latitude) * Math.Sin(longitude));
+            Z = (long)(Radius * Math.Sin(latitude));
         }
         public String getSaveString() {
-            return X + "," + Y + "," + Z;
+            return "("+X + "," + Y + "," + Z+")";
         }
     }
 }
