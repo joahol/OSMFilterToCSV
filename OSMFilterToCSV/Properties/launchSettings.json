@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "OSMFilterToCSV": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Users\\Joakim/Desktop\\HeightMapVågsøy\\map.osm highway"
+    }
+  }
+}
