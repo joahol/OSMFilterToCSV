@@ -26,48 +26,51 @@ namespace OSMFilterToCSV
                     Console.WriteLine("fileStream size(bytes):"+fileStream.Length);
                     Console.WriteLine("Reading File:" + args[0] + " filtering using:" + args[1]);
                     var source = new XmlOsmStreamSource(fileStream);
-                        
-                    var progress = source.ShowProgress();
+                    var prog = source.ShowProgress();
               
-                    var filteredNodes = from osmGeo in progress
-                                        where osmGeo.Type == OsmSharp.OsmGeoType.Way && osmGeo.Tags!=null && osmGeo.Tags.ContainsKey("highway")
-                                        select osmGeo;
-                    var noTagNodes = from osmGeo in progress
-                                     where osmGeo.Type == OsmGeoType.Node && osmGeo.Tags == null
-                                     select osmGeo;
+                    var filteredNodes = from osm in prog
+                                        where osm.Type == OsmSharp.OsmGeoType.Way && osm.Tags!=null && osm.Tags.ContainsKey("highway")
+                                        select osm;
+                    var noTagNodes = from osm in prog
+                                     where osm.Type == OsmGeoType.Node && osm.Tags == null
+                                     select osm;
 
-
-                 Console.WriteLine("filter");
+                    Console.WriteLine("filtering:highway");
                     var roadNodes = noTagNodes.ToFeatureSource();
 
-
-             
-                    FileStream f = File.Create("c:\\coords.csv");
-                    StringBuilder sb = new StringBuilder();
-                    Console.WriteLine("Let's look at the nodes");
+                    using StreamWriter sw = new StreamWriter("coords.csv");
+                    Console.WriteLine("Traversing nodes");
+                    int counter = 0;
                     foreach (var n in filteredNodes) {
+                        counter++;
                         List<Coordinate> coords = new List<Coordinate>();
-                        Console.WriteLine(n.Id);
+                        Console.WriteLine("Traversing node:"+counter+" of "+filteredNodes.Count()+"Node id:"+ n.Id);
                         //for hver node knyttet til denne veien, hent alle dens referanse noder 
+                        int nodeCount = 0;
                         foreach (var veinode in ((Way)n).Nodes)
                         {
+                            nodeCount++;
                             
                             var roadstub = (from i in source where i.Id == veinode select i).FirstOrDefault();
                             if (roadstub != null) {
 
                                 Coordinate c = new Coordinate((Node)roadstub);
                                 coords.Add(c);
-                                Console.WriteLine("RoadStub:" +c.getSaveString());
+                                Console.WriteLine("Stub(x,y,z):" + nodeCount + " of " + ((Way)n).Nodes.Length);//+c.getSaveString());
                             }
                       
                         }
+                        Road r = new Road();
+                        r.roadSegments = coords;
                         //hent ut veitypen definert i tag
                         foreach (var t in n.Tags) {
                             Console.WriteLine(t.Key + " " + t.Value);
-                          
+                            if (t.Key.Equals("highway")) {
+                                r.RoadType = t.Value;
+                            }
                         }
-                      
-
+                        Console.WriteLine("writeline");
+                        sw.WriteLine(r.getSaveString());
 
 
                     }

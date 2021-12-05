@@ -30,7 +30,7 @@ namespace OSMFilterToCSV
             Z = (long)(Radius * Math.Sin(roadstub.Latitude.Value));
         }
         public String getSaveString() {
-            return X + ":" + Y + ":" + Z;
+            return X + "," + Y + "," + Z;
         }
     }
 }
